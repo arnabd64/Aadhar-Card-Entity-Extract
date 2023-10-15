@@ -1,0 +1,7 @@
+__pycache__/
+models/
+
+docker-compose.yml
+Fine-Tune.ipynb
+README.md
+app.py

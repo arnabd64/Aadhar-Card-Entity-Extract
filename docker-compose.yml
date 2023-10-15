@@ -1,0 +1,17 @@
+version: "3"
+
+networks:
+  internal:
+    driver: bridge
+
+services:
+  server:
+    container_name: aadhar-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - internal
+    ports:
+      - 8000:8000/tcp
+    restart: unless-stopped
