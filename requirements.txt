@@ -11,3 +11,6 @@ fastapi
 uvicorn[standard]
 python-multipart
 psutil
+
+# Front End
+gradio

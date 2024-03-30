@@ -1,41 +1,52 @@
 import os
+from typing import Optional
 
 import cv2
+import easyocr
 import numpy as np
 import torch
-import easyocr
 from fastapi import HTTPException, UploadFile, status
+from huggingface_hub import hf_hub_download
 from supervision import Detections
 from ultralytics import YOLO
-from huggingface_hub import hf_hub_download
 
+MODELS_PATH = os.path.join(os.getcwd(), "models")
+
+def download_assets(model_path = MODELS_PATH):
+    """
+    Download the assets required for the inference
+    """
+    # create models directory
+    os.makedirs(model_path, exist_ok=True)
+
+    # download the YOLO model
+    hf_hub_download(
+        repo_id = "arnabdhar/YOLOv8-nano-aadhar-card",
+        filename = "model.pt",
+        local_dir = model_path
+    )
+
+    # download the EasyOCR model
+    params = {
+        "lang_list": ["en"],
+        "gpu": False,
+        "detector": False,
+        "recognizer": True,
+        "verbose": True,
+        "model_storage_directory": model_path
+    }
+    _ = easyocr.Reader(**params)
+
+    return None
 
 class InferenceHandler:
 
     __slots__ = ("image", "yolo", "reader")
 
-    @staticmethod
-    def download_assets():
-        """
-        Download the assets required for the inference
-        """
-        # download the YOLO model
-        hf_hub_download(
-            repo_id = "arnabdhar/YOLOv8-nano-aadhar-card",
-            filename = "model.pt",
-            local_dir = "./models"
-        )
-
-        # download the EasyOCR model
-        _ = easyocr.Reader(["en"], gpu=False, detector=False, recognizer=True, verbose=False)
-
-        return None
-        
-
     def __init__(self, image: UploadFile):
         self.image = image
-        self.yolo = YOLO("./models/model.pt")
-        self.reader = easyocr.Reader(["en"], gpu=False, detector=False, recognizer=True, verbose=False)
+        self.yolo = YOLO(os.path.join(MODELS_PATH, "model.pt"), task="detect")
+        self.reader = easyocr.Reader(["en"], gpu=False, detector=False, recognizer=True, verbose=False, model_storage_directory=MODELS_PATH)
 
 
     async def decode(self) -> np.ndarray:
@@ -66,7 +77,7 @@ class InferenceHandler:
         detections = self.yolo.predict(
             image,
             device = torch.device("cpu"),
-            confidence = float(os.getenv("YOLO_CONFIDENCE", "0.6")),\
+            conf = float(os.getenv("YOLO_CONFIDENCE", "0.6")),\
             verbose = False
         )
         return Detections.from_ultralytics(detections[0])
@@ -124,9 +135,10 @@ class InferenceHandler:
         return texts
 
     
-    async def build_response(self):
+    async def build_response(self, cv_image: Optional[np.ndarray] = None):
         # get the image in OpenCV format
-        cv_image = await self.decode()
+        if cv_image is None:
+            cv_image = await self.decode()
 
         # perform text deteciion
         detections = self.text_detection(cv_image)

@@ -1,16 +1,20 @@
-# STEP 1: build runtime
 FROM python:3.11-slim-bookworm
 
+# environment variables
+ENV PORT=8000
+ENV WORKERS=2
+
+# build runtime
 COPY requirements.txt .
 RUN apt update && \
-    apt install -f -y libopencv-dev && \
+    apt install -f --no-install-suggests -y libopencv-dev && \
     python -m pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     python -m pip install --no-cache-dir -r requirements.txt
 
+# copy the source code
 COPY . /app
-
 WORKDIR /app
 
-EXPOSE 8000
-
-CMD ["uvicorn", "src.server:server", "--host=0.0.0.0","--port=8000", "--workers=4", "--loop=uvloop", "--http=httptools"]
+# run the application
+EXPOSE ${PORT}
+CMD ["python", "main.py"]

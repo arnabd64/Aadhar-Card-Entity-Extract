@@ -1,17 +1,19 @@
 import time
 from typing import Annotated
 
-from fastapi import FastAPI, Depends
+import gradio
 import psutil
+from fastapi import Depends, FastAPI
+from fastapi.responses import RedirectResponse
 
-from src.handlers import InferenceHandler
+from src.api.handlers import InferenceHandler
+from src.webapp.gradio_app import iface
 
-server = FastAPI(on_startup=[InferenceHandler.download_assets])
-
+server = FastAPI()
 
 @server.get("/")
-async def root():
-    return {"message": "Welcome to the Inference API!"}
+def redirect():
+    return RedirectResponse(url="/app")
 
 
 @server.post("/inference")
@@ -36,3 +38,6 @@ async def add_process_time_header(request, call_next):
     response = await call_next(request)
     response.headers["X-Process-Time"] = str(1000 * (time.perf_counter() - start_time))
     return response
+
+
+server = gradio.mount_gradio_app(server, iface, "/app")

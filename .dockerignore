@@ -1,5 +1,6 @@
 __pycache__/
 models/
+flagged/
 
 docker-compose.yml
 Fine-Tune.ipynb
