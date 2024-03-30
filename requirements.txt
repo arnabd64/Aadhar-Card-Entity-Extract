@@ -1,0 +1,13 @@
+# YOLOv8
+ultralytics
+supervision
+huggingface_hub
+
+# ocr
+easyocr
+
+# API server
+fastapi
+uvicorn[standard]
+python-multipart
+psutil

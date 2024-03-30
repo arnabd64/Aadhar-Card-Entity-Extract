@@ -1,15 +1,16 @@
+# STEP 1: build runtime
 FROM python:3.11-slim-bookworm
 
-COPY . /app
-WORKDIR /app
-
-
+COPY requirements.txt .
 RUN apt update && \
     apt install -f -y libopencv-dev && \
-    pip3 install --no-cache-dir --quiet torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
-    pip3 install --no-cache-dir --quiet huggingface_hub ultralytics supervision easyocr fastapi uvicorn python-multipart && \
-    python3 pipelines.py
+    python -m pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    python -m pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
+
+WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["uvicorn", "server:server", "--host=0.0.0.0", "--workers=4"]
+CMD ["uvicorn", "src.server:server", "--host=0.0.0.0","--port=8000", "--workers=4", "--loop=uvloop", "--http=httptools"]
