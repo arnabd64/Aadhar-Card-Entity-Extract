@@ -1,5 +1,5 @@
 # YOLOv8
-ultralytics
+ultralytics==8.1.38
 supervision
 huggingface_hub
 
@@ -8,7 +8,9 @@ easyocr
 
 # API server
 fastapi
-uvicorn[standard]
+uvicorn
+uvloop
+httptools
 python-multipart
 psutil
 

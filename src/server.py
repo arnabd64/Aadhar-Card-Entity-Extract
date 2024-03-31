@@ -5,7 +5,7 @@ import gradio
 from fastapi import Depends, FastAPI
 from fastapi.responses import RedirectResponse
 
-from src.gradio_app import iface
+from src.gradio_app import app
 from src.handlers import APIHealthHandler, InferenceAPIHandler
 
 
@@ -34,4 +34,4 @@ async def add_process_time_header(request, call_next):
     return response
 
 
-server = gradio.mount_gradio_app(server, iface, "/app")
+server = gradio.mount_gradio_app(server, app, "/app")

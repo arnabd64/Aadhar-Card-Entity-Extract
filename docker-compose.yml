@@ -1,17 +1,25 @@
-version: "3"
+version: "3.5"
 
 networks:
   internal:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.35.0.0/24
 
 services:
   server:
-    container_name: aadhar-server
+    container_name: ocr-app
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - TZ=Asia/Kolkata
+      - PORT=8000
+      - WORKERS=2
+      - MODELS_STORAGE_PATH=/models
     networks:
-      - internal
+      internal:
+        ipv4_address: 172.35.0.10
     ports:
       - 8000:8000/tcp
-    restart: unless-stopped

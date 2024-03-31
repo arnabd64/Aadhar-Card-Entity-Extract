@@ -1,21 +1,20 @@
 import os
+from typing import Dict, Tuple
 
 import cv2
+import huggingface_hub
 import numpy as np
+import supervision as sv
 import torch
 from easyocr import Reader
 from fastapi import HTTPException, status
-from huggingface_hub import hf_hub_download
-from supervision import Detections
 from ultralytics import YOLO
-from typing import Tuple, Dict
 
-# directory to storage models
 MODEL_STORAGE = os.getenv('MODELS_STORAGE_PATH', os.path.join(os.getcwd(), "models"))
 
 # Load YOLOv8
 yolo_args = {
-    "model": hf_hub_download(
+    "model": huggingface_hub.hf_hub_download(
         repo_id = "arnabdhar/YOLOv8-nano-aadhar-card",
         filename = "model.pt",
         local_dir = MODEL_STORAGE
@@ -69,10 +68,10 @@ def text_detection(image: np.ndarray, model: YOLO = YOLOv8, confidence: float = 
         conf = confidence,
         verbose = False
     )
-    return Detections.from_ultralytics(detections[0])
+    return sv.Detections.from_ultralytics(detections[0])
 
 
-def validate_inference(detections: Detections):
+def validate_inference(detections: sv.Detections):
     """
     Perform the following validations:
     - Check if any entities are detected
@@ -85,7 +84,7 @@ def validate_inference(detections: Detections):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No Aadhar Number Detected")
 
 
-def postprocess(detections: Detections):
+def postprocess(detections: sv.Detections):
     """
     Postprocess the detections to extract the
     bounding boxes and labels.
@@ -116,7 +115,7 @@ def text_box(image: np.ndarray, box: Tuple):
      return image[box[1]:box[3], box[0]:box[2]]
 
 
-def image_to_text(image: np.ndarray, boxes: Detections, ocr: Reader = EASYOCR):
+def image_to_text(image: np.ndarray, boxes: sv.Detections, ocr: Reader = EASYOCR):
     """
     Extract the text from the detected bounding boxes
     using EasyOCR.
@@ -157,4 +156,4 @@ def pipeline(image: np.ndarray, confidence: float = 0.6, detector: YOLO = YOLOv8
     texts = image_to_text(image, boxes, ocr)
 
     # build the dictionary
-    return {label: text for label, text in zip(labels, texts)}
+    return {detector.names[label]: text for label, text in zip(labels, texts)}
