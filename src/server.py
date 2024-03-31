@@ -2,12 +2,12 @@ import time
 from typing import Annotated
 
 import gradio
-import psutil
 from fastapi import Depends, FastAPI
 from fastapi.responses import RedirectResponse
 
-from src.api.handlers import InferenceHandler
-from src.webapp.gradio_app import iface
+from src.gradio_app import iface
+from src.handlers import APIHealthHandler, InferenceAPIHandler
+
 
 server = FastAPI()
 
@@ -17,19 +17,13 @@ def redirect():
 
 
 @server.post("/inference")
-async def inference(handler: Annotated[InferenceHandler, Depends()]):
-    return await handler.build_response()
+async def inference(handler: Annotated[InferenceAPIHandler, Depends()]):
+    return await handler.response()
 
 
 @server.get("/health")
-def health():
-    return {
-        "status": "UP",
-        "cpu": psutil.cpu_percent(),
-        "memory": psutil.virtual_memory().percent,
-        "disk": psutil.disk_usage("/").percent
-    }
-    
+def health(handler: Annotated[APIHealthHandler, Depends()]):
+    return handler.response()
 
 
 @server.middleware("http")

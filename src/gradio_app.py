@@ -1,12 +1,12 @@
 from gradio import Interface
 from gradio.components import JSON, Image
 
-from src.api.handlers import InferenceHandler
+from src.handlers import WebAppHandler
 
-handler = InferenceHandler(None)
+handler = WebAppHandler()
 
 iface = Interface(
-    fn=handler.build_response,
+    fn=handler.response,
     inputs=Image(type="numpy", label="Input Image"),
     outputs=JSON(label="Output")
 )
