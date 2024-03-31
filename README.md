@@ -1,12 +1,3 @@
----
-title: Aadhar Card OCR
-emoji: 🐳
-colorFrom: purple
-colorTo: gray
-sdk: docker
-app_port: 8000
----
-
 # Aadhar Card Entity Extraction
 
 ## Overview
@@ -41,45 +32,6 @@ There are a two ways that you can use this model:
 1. Using as a __Gradio__ web app.
 2. Using as a __FastAPI__ Server.
 
-### Gradio Web App
-
-Download the source code:
-
-```bash
-# clone the repo
-$ git clone https://github.com/arnabd64/Aadhar-Card-Entity-Extract.git
-
-# change to working directory
-$ cd Aadhar-Car-Entity-Extract
-```
-
-Then create a virtual environment using `venv` or `conda` which ever you prefer. Please use Python 3.9, 3.10 or 3.11
-
-Then install the dependencies
-
-```bash
-$ pip install ultralytics supervision gradio huggingface_hub easyocr
-```
-
-Run the webapp:
-
-```bash
-$ python app.py
-```
-__Noote:__: The first run will take some since the models will download followed by loading them into memory.
-
-### FastAPI Server
-
-Download the Source Code:
-
-```bash
-# clone the repo
-$ git clone https://github.com/arnabd64/Aadhar-Card-Entity-Extract.git
-
-# change to working directory
-$ cd Aadhar-Car-Entity-Extract
-```
-
 #### Run from Source Code
 
 Create a virtual environment using `venv` or `conda` whichever you prefer. Please use Python 3.9, 3.10 or 3.11
@@ -93,7 +45,7 @@ $ pip install ultralytics supervision huggingface_hub easyocr fastapi uvicorn py
 Run the server
 
 ```bash
-$ uvicorn "server:server" --host=127.0.0.1 --port=8000 --workers=4
+$ uvicorn "src.server:server" --host=127.0.0.1 --port=8000 --workers=4
 ```
 
 #### Using Docker
@@ -113,6 +65,11 @@ __Docker Compose__
 ```bash
 $ docker compose up -d
 ```
+
+## Opening the Web UI
+
+Once the FastAPI server is running, head over to `http://localhost:8000/` to open the Gradio UI.
+
 
 # Links
 
