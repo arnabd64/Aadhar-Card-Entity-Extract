@@ -1,5 +1,5 @@
 # YOLOv8
-ultralytics==8.1.38
+ultralytics
 supervision
 huggingface_hub
 

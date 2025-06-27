@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.12-slim-bookworm
 
 # add debian dependencies
 RUN apt update && \
@@ -18,8 +18,6 @@ COPY . /app
 WORKDIR /app
 
 # environment variables
-ENV PORT=8000
-ENV WORKERS=2
 ENV MODELS_STORAGE_PATH=/models
 EXPOSE ${PORT}
 
